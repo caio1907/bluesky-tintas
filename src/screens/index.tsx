@@ -19,7 +19,7 @@ const screens: ScreenProps[] = [
   },
   {
     name: 'Cadastro',
-    path: '/Cadastro',
+    path: '/cadastro',
     component: <Cadastros/>,
     icon: <Icon.AppRegistration/>
   }
