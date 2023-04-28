@@ -28,7 +28,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className={classes.main}>
-      <h1 style={{ color: "#00264d" }}>Monitoramento</h1>
+      <h1 style={{ color: "#00264d" }}>Monitoramento:</h1>
       <TextField
         label="Filtrar"
         value={filter}
