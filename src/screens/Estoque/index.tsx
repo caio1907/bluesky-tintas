@@ -5,7 +5,7 @@ import { useState } from 'react';
 import * as Icon from '@mui/icons-material';
 
 
-const Estoque: React.FC = () => {
+const Produtos: React.FC = () => {
   const classes = useStyles();
   const [filter, setFilter] = useState('');
 
@@ -93,4 +93,4 @@ const Estoque: React.FC = () => {
   );
 }
 
-export default Estoque;
+export default Produtos;
