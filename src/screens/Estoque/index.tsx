@@ -32,9 +32,9 @@ const Estoque: React.FC = () => {
       <h1 className={classes.h1}>Estoque: </h1>
       <Grid container
         direction="row"
-        justifyContent="flex-end"
+        justifyContent="space-between"
         alignItems="center">
-            <button><Icon.Print/></button>
+            <button className={classes.botao}><Icon.Print/></button>
       <TextField
         label="Filtrar"
         value={filter}
@@ -78,6 +78,13 @@ const Estoque: React.FC = () => {
           ))}
         </tbody>
       </table>
+      </Grid>
+      <Grid container
+        direction="row"
+        justifyContent="flex-end"
+        alignItems="center" >
+        <Button variant='text' href='' size="small" className={classes.botaoler}> ver mais 	&#8675;  </Button>
+        
       </Grid>
     </div>
   );

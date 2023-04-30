@@ -7,5 +7,12 @@ export default makeStyles((theme) => ({
   tabela:{
     width:'800px',
 
+  },
+  botao:{
+    width:'55px'
+  },
+  // o botãoler é o botão do ler mais :3
+  botaoler:{
+    right:'54px'
   }
 }));
