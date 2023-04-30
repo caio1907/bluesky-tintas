@@ -2,7 +2,7 @@ import React from 'react';
 import useStyles from './styles';
 import { TextField, InputAdornment, Grid, Box, Button } from '@mui/material';
 import { useState } from 'react';
-import * as Icon from '@mui/icons-material'
+import * as Icon from '@mui/icons-material';
 
 
 const Estoque: React.FC = () => {
@@ -30,61 +30,64 @@ const Estoque: React.FC = () => {
   return (
     <div>
       <h1 className={classes.h1}>Estoque: </h1>
-      <Grid container
+      <Grid
+        container
         direction="row"
         justifyContent="space-between"
-        alignItems="center">
-            <button className={classes.botao}><Icon.Print/></button>
-      <TextField
-        label="Filtrar"
-        value={filter}
-        onChange={handleFilterChange}
-        margin="dense"
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <Icon.FilterAlt />
-            </InputAdornment>
-          ),
-        }}
-      />
+        alignItems="center"
+      >
+        <button className={classes.botao}><Icon.Print/></button>
+        <TextField
+          label="Filtrar"
+          value={filter}
+          onChange={handleFilterChange}
+          margin="dense"
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <Icon.FilterAlt />
+              </InputAdornment>
+            ),
+          }}
+        />
       </Grid>
       <Box mb={2} />
-      <Grid container
+      <Grid
+        container
         direction="row"
         justifyContent="center"
-        alignItems="center">
-      <table className={classes.tabela}
-      border={1}
+        alignItems="center"
       >
-        <thead>
-          <tr>
-            <th>Cod.</th>
-            <th>Nome</th>
-            <th>Variação</th>
-            <th>Fornecedor</th>
-            <th>Qnt</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredData.map((item, index) => (
-            <tr key={index}>
-              <td>{item.coluna1}</td>
-              <td>{item.coluna2}</td>
-              <td>{item.coluna3}</td>
-              <td>{item.coluna4}</td>
-              <td>{item.coluna5}</td>
+        <table className={classes.tabela} border={1}>
+          <thead>
+            <tr>
+              <th>Cod.</th>
+              <th>Nome</th>
+              <th>Variação</th>
+              <th>Fornecedor</th>
+              <th>Qnt</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredData.map((item, index) => (
+              <tr key={index}>
+                <td>{item.coluna1}</td>
+                <td>{item.coluna2}</td>
+                <td>{item.coluna3}</td>
+                <td>{item.coluna4}</td>
+                <td>{item.coluna5}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </Grid>
-      <Grid container
+      <Grid
+        container
         direction="row"
         justifyContent="flex-end"
-        alignItems="center" >
-        <Button variant='text' href='' size="small" className={classes.botaoler}> ver mais 	&#8675;  </Button>
-        
+        alignItems="center"
+      >
+        <Button variant="text" href="" size="small" className={classes.botaoler}> ver mais &#65516;  </Button>
       </Grid>
     </div>
   );

@@ -13,6 +13,7 @@ export default makeStyles((theme) => ({
   },
   // o botãoler é o botão do ler mais :3
   botaoler:{
-    right:'54px'
+    right:'62px',
+    top:'6px'
   }
 }));
