@@ -18,7 +18,7 @@ const Cadastros: React.FC = () => {
       <Box mb={2} />
 
       <Grid container direction="row" justifyContent="space-evenly" alignItems="center" columnSpacing={7}>
-        <TextField id="Cor" label="Cor" variant="outlined" style={{ width: 159 }} />
+        <TextField id="Quant" label="Quantidade" variant="outlined" style={{ width: 159 }} />
         <TextField id="Tipo" label="Tipo" variant="outlined" />
         <TextField id="Forne" label="Fornecedor" variant="outlined" />
       </Grid>
