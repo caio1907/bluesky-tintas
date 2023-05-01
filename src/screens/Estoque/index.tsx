@@ -13,7 +13,6 @@ const Produtos: React.FC = () => {
     setFilter(event.target.value);
   };
 
-  // Dados da tabela
   const tableData = [
     { coluna1: '02323', coluna2: 'tinta amarela', coluna3: 'parede', coluna4: "kibom", coluna5: "5" },
     { coluna1: '54321', coluna2: 'tinta  vermelha', coluna3: 'óleo', coluna4: "coral", coluna5: "7" },

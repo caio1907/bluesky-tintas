@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import Dashboard from './Dashboard';
 import * as Icon from '@mui/icons-material'
-import Cadastros from './Cadastros';
 import Produtos from './Estoque';
 
 export interface ScreenProps {
@@ -19,14 +18,8 @@ const screens: ScreenProps[] = [
     icon: <Icon.Home/>
   },
   {
-    name: 'Cadastro',
-    path: '/cadastro',
-    component: <Cadastros/>,
-    icon: <Icon.AppRegistration/>
-  },
-  {
     name: 'Produtos',
-    path: '/estoque',
+    path: '/products',
     component: <Produtos/>,
     icon: <Icon.Storage/>
   }
