@@ -1,4 +1,5 @@
 import { createTheme } from "@mui/material/styles";
+import { ptBR } from '@mui/x-data-grid'
 
 declare module '@mui/material/styles' {
   interface Palette {
@@ -319,4 +320,4 @@ export default createTheme({
       lineHeight: 1.375
     }
   }
-})
+}, ptBR)

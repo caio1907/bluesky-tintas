@@ -1,158 +1,247 @@
-import React, { useState } from 'react';
-import { Button, FormControl, TextField } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Accordion, AccordionSummary, Box, Button, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { setLoading } from '../../utils/loadingState';
 import { toast } from 'react-toastify';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { translateMessageErrorToPTBR } from '../../utils/messageErrorsFirebase';
-import { auth } from '../../services/firebase';
-import { setDoc } from 'firebase/firestore';
-import { DataGrid, GridActionsCellItem, GridColDef } from '@mui/x-data-grid';
-import * as Icon from '@mui/icons-material'
+import { auth, database } from '../../services/firebase';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer } from '@mui/x-data-grid';
+import * as Icon from '@mui/icons-material';
+import { AccordionDetails } from '@material-ui/core';
+import useStyle from './style';
 
 const UsuariosCadastro:React.FC = () => {
-  const rowModesModel = useState([]);
-  const formik = useFormik({
-    initialValues: {
-      name: '',
-      email: '',
-      password: '',
-      confirmPassword: ''
-    },
-    validationSchema: Yup.object({
-      name: Yup.string().max(255).required('Nome é obrigatório'),
-      email: Yup.string().email().required('E-mail é obrigatório'),
-      password: Yup.string().required('Senha é obrigatória'),
-      confirmPassword: Yup.string().required('Confirmação de senha é obrigatória').oneOf([Yup.ref('password'), null], 'As senhas devem ser iguais')
-    }),
-    onSubmit: (values) => submit(values)
-  });
+  const [formIsVisible, setFormIsVisible] = useState(false);
+  const classes = useStyle();
 
-  const submit = ({name, email, password}: {name: string, email: string, password: string}) => {
+  const dataGridColumns: GridColDef[] = [
+    {field: 'first_name', headerName: 'Nome', flex: 1},
+    {field: 'last_name', headerName: 'Sobrenome', flex: 1},
+    {field: 'email', headerName: 'E-mail', flex: 1},
+    {
+      field: 'actions',
+      headerName: 'Ações',
+      type: 'actions',
+      maxWidth: 100,
+      getActions: (params) => {
+        const { row } = params;
+
+        return [
+          <GridActionsCellItem
+            disabled={formIsVisible}
+            icon={<Icon.Edit color='warning' filter={`grayscale(${formIsVisible ? '1' : '0'})`}/>}
+            label="Edit"
+            className="textPrimary"
+            onClick={() => handleEditClick(row)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            disabled={formIsVisible}
+            icon={<Icon.Delete color='error' filter={`grayscale(${formIsVisible ? '1' : '0'})`}/>}
+            label="Delete"
+            onClick={() => handleDeleteClick(row.uid)}
+            color="inherit"
+          />
+        ];
+      }
+    }
+  ];
+
+  const [dataGridRows, setDataGridRows] = useState<GridRowsProp>([]);
+
+  useEffect(() => {
+    const snapshot = onSnapshot(collection(database, 'users'), snapshot => {
+      setDataGridRows(snapshot.docs.map((doc, index: number) => ({
+        id: index,
+        uid: doc.id,
+        first_name: doc.get('first_name'),
+        last_name: doc.get('last_name'),
+        email: doc.get('email')
+      })))
+    })
+
+    return () => {
+      snapshot();
+    }
+  }, [formIsVisible]);
+
+  const handleCancelClick = () => {
+    setFormIsVisible(false);
+    formik.resetForm();
+  }
+
+  const handleEditClick = (row: any) => {
+    const { uid, first_name, last_name, email } = row
+    formik.setValues({
+      uid,
+      first_name,
+      last_name,
+      email
+    });
+    setFormIsVisible(true);
+  }
+
+  const handleDeleteClick = (uid: string) => {
+    const isDelete = window.confirm('Deseja deletar o usuário?')
+    if (!isDelete) return;
     setLoading(true);
-    toast.dismiss();
-    createUserWithEmailAndPassword(auth, email, password).then(() => {
-      // setDoc();
-      toast.success('Usuário cadastro com sucesso');
-      formik.resetForm();
-    }).catch(error => {
-      toast.error(translateMessageErrorToPTBR(error.code) ?? error.message);
-      formik.setSubmitting(false);
+    deleteDoc(doc(database, 'users', uid)).then(() => {
+      toast.success('Usuário removido com sucesso');
     }).finally(() => {
       setLoading(false);
     })
   }
 
-  https://mui.com/x/react-data-grid/editing/#full-featured-crud-component
+  const handleAddToolbarButton = () => setFormIsVisible(true)
 
-  const dataGrid:{columns:GridColDef[], rows: any} = {
-    columns: [
-      {field: 'name', headerName: 'Nome', minWidth: 150},
-      {field: 'email', headerName: 'E-mail', width: 200},
-      {
-        field: 'actions',
-        type: 'actions',
-        width: 100,
-        getActions: ({ id }) => {
-          const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+  const formik = useFormik({
+    initialValues: {
+      uid: '',
+      first_name: '',
+      last_name: '',
+      email: ''
+    },
+    validationSchema: Yup.object({
+      first_name: Yup.string().max(255).required('Nome é obrigatório'),
+      last_name: Yup.string().max(255).required('Sobrenome é obrigatório'),
+      email: Yup.string().email('E-mail inválido').required('E-mail é obrigatório')
+    }),
+    onSubmit: (values) => submit(values)
+  });
 
-          if (isInEditMode) {
-            return [
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={handleSaveClick(id)}
-              />,
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                className="textPrimary"
-                onClick={handleCancelClick(id)}
-                color="inherit"
-              />,
-            ];
-          }
+  const submit = ({uid, first_name, last_name, email}: {uid: string, first_name: string, last_name: string, email: string}) => {
+    setLoading(true);
+    toast.dismiss();
+    if (uid) {
+      setDoc(doc(database, 'users', uid), {
+        email,
+        first_name,
+        last_name
+      }).then(() => {
+        toast.success('Usuário alterado com sucesso');
+      }).catch(error => {
+        toast.error(translateMessageErrorToPTBR(error.code) ?? error.message);
+      }).finally(() => {
+        formik.resetForm();
+        setLoading(false);
+        setFormIsVisible(false);
+      })
+      return;
+    }
+    const password = Math.random().toString(36).slice(-8);
+    createUserWithEmailAndPassword(auth, email, password).then(result => {
+      const { uid } = result.user;
+      setDoc(doc(database, 'users', uid), {
+        email,
+        first_name,
+        last_name
+      }).then(() => {
+        toast.success('Usuário cadastro com sucesso');
+        sendPasswordResetEmail(auth, email).then(() => {
+          toast.info('Um e-mail para definir a senha foi enviado para o e-mail cadastrado')
+        }).catch(error => {
+          toast.error(translateMessageErrorToPTBR(error.code) ?? error.message);
+        }).finally(() => {
+          formik.resetForm();
+          setLoading(false);
+          setFormIsVisible(false);
+        })
+      });
+    }).catch(error => {
+      toast.error(translateMessageErrorToPTBR(error.code) ?? error.message);
+      formik.setSubmitting(false);
+      setLoading(false);
+    })
+  }
 
-          return [
-            <GridActionsCellItem
-              icon={<Icon.Edit />}
-              label="Edit"
-              className="textPrimary"
-              onClick={handleEditClick(id)}
-              color="inherit"
-            />,
-            <GridActionsCellItem
-              icon={<Icon.Delete />}
-              label="Delete"
-              onClick={handleDeleteClick(id)}
-              color="inherit"
-            />,
-          ];
-        }
-      }
-    ],
-    rows: [
-      {id: 1, name: 'Caio', email: 'caio@email.com'},
-      {id: 2, name: 'Caio', email: 'caio@email.com'},
-      {id: 3, name: 'Caio', email: 'caio@email.com'},
-    ]
+  const AddToolbarButton: React.FC = () => {
+    return (
+      <GridToolbarContainer>
+        <Button
+          disabled={formIsVisible}
+          color='info'
+          startIcon={<Icon.Add />}
+          onClick={handleAddToolbarButton}>
+          Adicionar usuário
+        </Button>
+      </GridToolbarContainer>
+    )
   }
 
   return (
     <div>
+      <Accordion expanded={formIsVisible}>
+        <AccordionSummary sx={{display: 'none'}}></AccordionSummary>
+        <AccordionDetails className={classes.accordionAlignCenter}>
+          <Card variant='outlined' sx={{mb: 2}}>
+            <CardHeader
+              title='Cadastrar/Editar Usuário'
+              sx={{
+                pb: 0
+              }}
+            />
+            <CardContent>
+              <Box
+                component={'form'}
+                onSubmit={formik.handleSubmit}
+                noValidate
+                sx={{
+                  '& .MuiTextField-root': { m: 1 },
+                }}
+              >
+                <TextField
+                  label='Nome'
+                  error={Boolean(formik.touched.first_name && formik.errors.first_name)}
+                  helperText={formik.touched.first_name && formik.errors.first_name}
+                  margin='normal'
+                  name='first_name'
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  type='text'
+                  value={formik.values.first_name}
+                />
+                <TextField
+                  label='Sobrenome'
+                  error={Boolean(formik.touched.last_name && formik.errors.last_name)}
+                  helperText={formik.touched.last_name && formik.errors.last_name}
+                  margin='normal'
+                  name='last_name'
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  type='text'
+                  value={formik.values.last_name}
+                />
+                <TextField
+                  label='E-mail'
+                  error={Boolean(formik.touched.email && formik.errors.email)}
+                  helperText={formik.touched.email && formik.errors.email}
+                  margin='normal'
+                  name='email'
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  type='email'
+                  value={formik.values.email}
+                />
+              </Box>
+            </CardContent>
+            <CardActions sx={{display: 'flex', justifyContent: 'end'}}>
+              <Button color='error' onClick={handleCancelClick}>Cancelar</Button>
+              <Button color='success' onClick={formik.submitForm}>Salvar</Button>
+            </CardActions>
+          </Card>
+        </AccordionDetails>
+      </Accordion>
       <DataGrid
-        columns={dataGrid.columns}
-        rows={dataGrid.rows}
-        rowSelection={true}
+        columns={dataGridColumns}
+        rows={dataGridRows}
+        rowSelection={false}
+        slots={{
+          toolbar: AddToolbarButton
+        }}
       />
-      {/* <FormControl component='form' onSubmit={formik.handleSubmit}>
-        <TextField
-          label='Nome'
-          error={Boolean(formik.touched.email && formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          margin='normal'
-          name='email'
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          type='email'
-          value={formik.values.email}
-        />
-        <TextField
-          label='E-mail'
-          error={Boolean(formik.touched.email && formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          margin='normal'
-          name='email'
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          type='email'
-          value={formik.values.email}
-        />
-        <TextField
-          label='Senha'
-          error={Boolean(formik.touched.email && formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          margin='normal'
-          name='email'
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          type='email'
-          value={formik.values.email}
-        />
-        <TextField
-          label='Confirmação de senha'
-          error={Boolean(formik.touched.email && formik.errors.email)}
-          helperText={formik.touched.email && formik.errors.email}
-          margin='normal'
-          name='email'
-          onBlur={formik.handleBlur}
-          onChange={formik.handleChange}
-          type='email'
-          value={formik.values.email}
-        />
-        <Button color='success' variant='contained'>Salvar</Button>
-      </FormControl> */}
     </div>
   )
 }
