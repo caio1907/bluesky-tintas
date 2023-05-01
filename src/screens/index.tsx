@@ -1,7 +1,7 @@
 import React from 'react';
 import Dashboard from './Dashboard';
 import * as Icon from '@mui/icons-material'
-import UsuariosCadastro from './UsuariosCadastro';
+import Usuarios from './Usuarios';
 
 export interface ScreenProps {
   path: string
@@ -20,7 +20,7 @@ const screens: ScreenProps[] = [
   {
     name: 'Usuários',
     path: '/users',
-    component: <UsuariosCadastro/>,
+    component: <Usuarios/>,
     icon: <Icon.People/>
   }
 ];
