@@ -13,7 +13,7 @@ import * as Icon from '@mui/icons-material';
 import { AccordionDetails } from '@material-ui/core';
 import useStyle from './style';
 
-const UsuariosCadastro:React.FC = () => {
+const Usuarios:React.FC = () => {
   const [formIsVisible, setFormIsVisible] = useState(false);
   const classes = useStyle();
 
@@ -66,7 +66,7 @@ const UsuariosCadastro:React.FC = () => {
     return () => {
       snapshot();
     }
-  }, [formIsVisible]);
+  }, []);
 
   const handleCancelClick = () => {
     setFormIsVisible(false);
@@ -245,4 +245,4 @@ const UsuariosCadastro:React.FC = () => {
     </div>
   )
 }
-export default UsuariosCadastro
+export default Usuarios
