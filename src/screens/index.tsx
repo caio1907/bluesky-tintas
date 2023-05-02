@@ -2,6 +2,7 @@ import React from 'react';
 import Dashboard from './Dashboard';
 import * as Icon from '@mui/icons-material'
 import Usuarios from './Usuarios';
+import Fornecedores from './Fornecedores';
 
 export interface ScreenProps {
   path: string
@@ -22,6 +23,12 @@ const screens: ScreenProps[] = [
     path: '/users',
     component: <Usuarios/>,
     icon: <Icon.People/>
+  },
+  {
+    name: 'Fornecedores',
+    path: '/providers',
+    component: <Fornecedores/>,
+    icon: <Icon.Handshake/>
   }
 ];
 export default screens;
