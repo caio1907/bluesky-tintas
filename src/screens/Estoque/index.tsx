@@ -1,93 +1,75 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import useStyles from './styles';
-import { TextField, InputAdornment, Grid, Box, Button } from '@mui/material';
-import { useState } from 'react';
-import * as Icon from '@mui/icons-material';
-
+import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
+import { database } from '../../services/firebase';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { Providers } from '../../types';
 
 const Produtos: React.FC = () => {
   const classes = useStyles();
-  const [filter, setFilter] = useState('');
-
-  const handleFilterChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setFilter(event.target.value);
-  };
-
-  const tableData = [
-    { coluna1: '02323', coluna2: 'tinta amarela', coluna3: 'parede', coluna4: "kibom", coluna5: "5" },
-    { coluna1: '54321', coluna2: 'tinta  vermelha', coluna3: 'óleo', coluna4: "coral", coluna5: "7" },
-    { coluna1: '12345', coluna2: 'tinta azul piscina', coluna3: 'óleo', coluna4: "surveni",coluna5: "2" },
-    { coluna1: '542', coluna2: 'tinta  vermelha', coluna3: 'óleo', coluna4: "friboi",coluna5: "3" },
+  const [providers, setProviders] = useState<Providers[]>([]);
+  const dataGridColumns: GridColDef[] = [
+    {field: 'ean', headerName: 'EAN', flex: 1},
+    {field: 'name', headerName: 'Nome', flex: 1},
+    {field: 'provider', headerName: 'Fornecedor', flex: 1},
+    {field: 'quantity', headerName: 'Quantidade', flex: 1},
+    {field: 'min_quantity', headerName: 'Quantidade Mínima', flex: 1}
   ];
+  const [dataGridRows, setDataGridRows] = useState<GridRowsProp>([]);
 
-  const filteredData = tableData.filter((item) =>
-    Object.values(item).some((value) =>
-      value.toString().toLowerCase().includes(filter.toLowerCase())
-    )
-  );
+  useEffect(() => {
+    const snapshot = onSnapshot(collection(database, 'providers'), snapshot => {
+      setProviders(snapshot.docs.map((doc, index: number) => ({
+        uid: doc.id,
+        name: doc.get('name'),
+        cnpj: doc.get('cnpj')
+      })))
+    });
+
+    return () => {
+      snapshot();
+    }
+  }, []);
+
+  useEffect(() => {
+    if (providers) {
+      const q = query(collection(database, 'products'), orderBy('quantity', 'desc'));
+      const snapshot = onSnapshot(q, snapshot => {
+        setDataGridRows(snapshot.docs.map((doc, index: number) => ({
+          id: index,
+          uid: doc.id,
+          ean: doc.get('ean'),
+          provider: getProviderName(doc.get('provider')),
+          min_quantity: doc.get('min_quantity'),
+          name: doc.get('name'),
+          quantity: doc.get('quantity')
+        })))
+      });
+
+      return () => {
+        snapshot();
+      }
+    }
+  }, [providers]); // eslint-disable-line
+
+  const getProviderName = (fornecedorId: number) => {
+    return providers.find(provider => provider.uid === fornecedorId.toString())?.name;
+  }
 
   return (
     <div>
-      <h1 className={classes.h1}>Estoque: </h1>
-      <Grid
-        container
-        direction="row"
-        justifyContent="space-between"
-        alignItems="center"
-      >
-        <button className={classes.botao}><Icon.Print/></button>
-        <TextField
-          label="Filtrar"
-          value={filter}
-          onChange={handleFilterChange}
-          margin="dense"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <Icon.FilterAlt />
-              </InputAdornment>
-            ),
-          }}
-        />
-      </Grid>
-      <Box mb={2} />
-      <Grid
-        container
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-      >
-        <table className={classes.tabela} border={1}>
-          <thead>
-            <tr>
-              <th>Cod.</th>
-              <th>Nome</th>
-              <th>Variação</th>
-              <th>Fornecedor</th>
-              <th>Qnt</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredData.map((item, index) => (
-              <tr key={index}>
-                <td>{item.coluna1}</td>
-                <td>{item.coluna2}</td>
-                <td>{item.coluna3}</td>
-                <td>{item.coluna4}</td>
-                <td>{item.coluna5}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Grid>
-      <Grid
-        container
-        direction="row"
-        justifyContent="flex-end"
-        alignItems="center"
-      >
-        <Button variant="text" href="" size="small" className={classes.botaoler}> ver mais &#65516;  </Button>
-      </Grid>
+      <DataGrid
+        columns={dataGridColumns}
+        rows={dataGridRows}
+        rowSelection={false}
+        getCellClassName={params => {
+          console.log(params)
+          if (params.row.quantity < params.row.min_quantity) {
+            return classes.minQuantityRow
+          }
+          return '';
+        }}
+      />
     </div>
   );
 }

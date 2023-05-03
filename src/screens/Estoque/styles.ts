@@ -15,5 +15,9 @@ export default makeStyles((theme) => ({
   botaoler:{
     right:'62px',
     top:'6px'
+  },
+  minQuantityRow: {
+    backgroundColor: theme.palette.error.main,
+    color: '#FFF'
   }
 }));
