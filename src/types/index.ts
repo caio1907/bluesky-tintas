@@ -10,3 +10,9 @@ export type Schedule = {
   dateEnd: Date,
   teacher: String
 }
+
+export type Providers = {
+  uid: string
+  name: string
+  cnpj: string
+}
