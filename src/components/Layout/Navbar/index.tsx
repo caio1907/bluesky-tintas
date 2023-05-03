@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
-import { AppBar, Box, IconButton, Toolbar, Tooltip } from '@mui/material';
+import { AppBar, IconButton, Toolbar, Tooltip, Typography } from '@mui/material';
 import * as Icon from '@mui/icons-material'
+import { useLocation } from 'react-router-dom';
+import screens from '../../../screens';
 
 interface Props {
   logOut: () => void
@@ -17,6 +19,12 @@ const Navbar:React.FC<Props> = ({
   logOut,
   sidebarOnOpen
 }) => {
+  const location = useLocation();
+  const [title, setTitle] = useState<string>('');
+  useEffect(() => {
+    setTitle(screens.find(item => item.path === location.pathname)?.name ?? '');
+  }, [location.pathname])
+
   return (
     <>
       <Root
@@ -48,7 +56,7 @@ const Navbar:React.FC<Props> = ({
           >
             <Icon.Menu fontSize='small'/>
           </IconButton>
-          <Box sx={{ flexGrow: 1 }} />
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>{title}</Typography>
           <Tooltip title='Sair'>
             <IconButton sx={{ ml: 1 }} onClick={logOut}>
               <Icon.Logout fontSize='small' />
