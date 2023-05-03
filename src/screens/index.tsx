@@ -1,7 +1,7 @@
 import React from 'react';
 import Dashboard from './Dashboard';
 import * as Icon from '@mui/icons-material'
-import Cadastros from './Cadastros';
+import Produtos from './Produtos';
 import Usuarios from './Usuarios';
 import Fornecedores from './Fornecedores';
 
@@ -22,8 +22,8 @@ const screens: ScreenProps[] = [
   {
     name: 'Cadastro',
     path: '/cadastro',
-    component: <Cadastros/>,
-    icon: <Icon.AppRegistration/>
+    component: <Produtos/>,
+    icon: <Icon.Window/>
   },
   {
     name: 'Usuários',
