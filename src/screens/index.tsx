@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Dashboard from './Dashboard';
 import * as Icon from '@mui/icons-material'
 import Estoque from './Estoque';

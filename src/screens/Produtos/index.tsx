@@ -10,21 +10,7 @@ import { database } from '../../services/firebase';
 import * as Yup from 'yup';
 import useStyle from './style';
 import { translateMessageErrorToPTBR } from '../../utils/messageErrorsFirebase';
-
-interface Providers {
-  uid: string
-  name: string
-  cnpj: string
-}
-
-interface Item {
-  uid?: string
-  ean: string
-  name: string
-  provider: number
-  min_quantity: number
-  quantity: number
-}
+import { Providers, Item } from '../../types';
 
 const Produtos: React.FC = () => {
   const [providers, setProviders] = useState<Providers[]>([]);
