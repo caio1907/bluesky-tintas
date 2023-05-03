@@ -16,3 +16,12 @@ export type Providers = {
   name: string
   cnpj: string
 }
+
+export type Item = {
+  uid?: string
+  ean: string
+  name: string
+  provider: number
+  min_quantity: number
+  quantity: number
+}
