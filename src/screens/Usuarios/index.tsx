@@ -1,11 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Accordion, AccordionSummary, Box, Button, Card, CardActions, CardContent, CardHeader, Checkbox, FormControlLabel, Grid, LinearProgress, TextField, Typography } from '@mui/material';
+import {
+  Accordion,
+  AccordionSummary,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  Checkbox,
+  FormControlLabel,
+  Grid,
+  TextField
+} from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { setLoading } from '../../utils/loadingState';
 import { toast } from 'react-toastify';
-import { createUserWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { translateMessageErrorToPTBR } from '../../utils/messageErrorsFirebase';
 import { auth, database } from '../../services/firebase';
 import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer } from '@mui/x-data-grid';
@@ -97,20 +109,6 @@ const Usuarios:React.FC = () => {
   const handleCancelClick = () => {
     setFormIsVisible(false);
     formik.resetForm();
-  }
-
-  const handleEditClick = (row: any) => {
-    const { uid, first_name, last_name, email, admin } = row
-    formik.setValues({
-      uid,
-      first_name,
-      last_name,
-      email,
-      password: '',
-      passwordConfirmation: '',
-      admin
-    });
-    setFormIsVisible(true);
   }
 
   const handleDeleteClick = (uid: string) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Accordion, AccordionDetails, AccordionSummary, Button, Card, CardActionArea, CardActions, CardContent, CardHeader, Grid, MenuItem, TextField, Typography, useTheme } from '@mui/material';
 import { Item } from '../../types';
-import { addDoc, collection, doc, onSnapshot, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
+import { addDoc, collection, doc, onSnapshot, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { auth, database } from '../../services/firebase';
 import { useNavigate } from 'react-router-dom';
 import useStyles from './style';
