@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Accordion, AccordionSummary, Box, Button, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
+import { Accordion, AccordionSummary, Box, Button, Card, CardActions, CardContent, CardHeader, Checkbox, FormControlLabel, Grid, LinearProgress, TextField, Typography } from '@mui/material';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
@@ -13,9 +13,43 @@ import * as Icon from '@mui/icons-material';
 import { AccordionDetails } from '@material-ui/core';
 import useStyle from './style';
 
+interface SubmitData {
+  uid: string
+  first_name: string
+  last_name: string
+  email: string
+  password: string
+}
+
 const Usuarios:React.FC = () => {
   const [formIsVisible, setFormIsVisible] = useState(false);
   const classes = useStyle();
+
+  const formik = useFormik({
+    initialValues: {
+      uid: '',
+      first_name: '',
+      last_name: '',
+      email: '',
+      password: '',
+      passwordConfirmation: '',
+      admin: false
+    },
+    validationSchema: Yup.object({
+      first_name: Yup.string().max(255).required('Nome é obrigatório'),
+      last_name: Yup.string().max(255).required('Sobrenome é obrigatório'),
+      email: Yup.string().email('E-mail inválido').required('E-mail é obrigatório'),
+      password: Yup.string()
+        .required('Senha é obrigatória')
+        .min(8, 'Deve conter 8 caracteres')
+        .matches(/[a-z]/g, 'Deve conter letras minúsculos')
+        .matches(/[A-Z]/g, 'Deve conter letras maiúsculas')
+        .matches(/[0-9]/g, 'Deve conter números')
+        .matches(/[~`!@#$%^&*+=\-[\]\\';,/{}|\\":<>?çÇ]/g, 'Deve conter caracteres especiais'),
+      passwordConfirmation: Yup.string().oneOf([Yup.ref('password'), null], 'As senhas não coincidem')
+    }),
+    onSubmit: (values) => submit(values)
+  });
 
   const dataGridColumns: GridColDef[] = [
     {field: 'first_name', headerName: 'Nome', flex: 1},
@@ -30,14 +64,6 @@ const Usuarios:React.FC = () => {
         const { row } = params;
 
         return [
-          <GridActionsCellItem
-            disabled={formIsVisible}
-            icon={<Icon.Edit color='warning' filter={`grayscale(${formIsVisible ? '1' : '0'})`}/>}
-            label="Edit"
-            className="textPrimary"
-            onClick={() => handleEditClick(row)}
-            color="inherit"
-          />,
           <GridActionsCellItem
             disabled={formIsVisible}
             icon={<Icon.Delete color='error' filter={`grayscale(${formIsVisible ? '1' : '0'})`}/>}
@@ -74,12 +100,15 @@ const Usuarios:React.FC = () => {
   }
 
   const handleEditClick = (row: any) => {
-    const { uid, first_name, last_name, email } = row
+    const { uid, first_name, last_name, email, admin } = row
     formik.setValues({
       uid,
       first_name,
       last_name,
-      email
+      email,
+      password: '',
+      passwordConfirmation: '',
+      admin
     });
     setFormIsVisible(true);
   }
@@ -97,22 +126,7 @@ const Usuarios:React.FC = () => {
 
   const handleAddToolbarButton = () => setFormIsVisible(true)
 
-  const formik = useFormik({
-    initialValues: {
-      uid: '',
-      first_name: '',
-      last_name: '',
-      email: ''
-    },
-    validationSchema: Yup.object({
-      first_name: Yup.string().max(255).required('Nome é obrigatório'),
-      last_name: Yup.string().max(255).required('Sobrenome é obrigatório'),
-      email: Yup.string().email('E-mail inválido').required('E-mail é obrigatório')
-    }),
-    onSubmit: (values) => submit(values)
-  });
-
-  const submit = ({uid, first_name, last_name, email}: {uid: string, first_name: string, last_name: string, email: string}) => {
+  const submit = ({uid, first_name, last_name, email, password}: SubmitData) => {
     setLoading(true);
     toast.dismiss();
     if (uid) {
@@ -131,7 +145,6 @@ const Usuarios:React.FC = () => {
       })
       return;
     }
-    const password = Math.random().toString(36).slice(-8);
     createUserWithEmailAndPassword(auth, email, password).then(result => {
       const { uid } = result.user;
       setDoc(doc(database, 'users', uid), {
@@ -140,19 +153,13 @@ const Usuarios:React.FC = () => {
         last_name
       }).then(() => {
         toast.success('Usuário cadastro com sucesso');
-        sendPasswordResetEmail(auth, email).then(() => {
-          toast.info('Um e-mail para definir a senha foi enviado para o e-mail cadastrado')
-        }).catch(error => {
-          toast.error(translateMessageErrorToPTBR(error.code) ?? error.message);
-        }).finally(() => {
-          formik.resetForm();
-          setLoading(false);
-          setFormIsVisible(false);
-        })
+        formik.resetForm();
+        setFormIsVisible(false);
       });
     }).catch(error => {
       toast.error(translateMessageErrorToPTBR(error.code) ?? error.message);
       formik.setSubmitting(false);
+    }).finally(() => {
       setLoading(false);
     })
   }
@@ -184,7 +191,9 @@ const Usuarios:React.FC = () => {
               }}
             />
             <CardContent>
-              <Box
+              <Grid
+                container
+                spacing={2}
                 component={'form'}
                 onSubmit={formik.handleSubmit}
                 noValidate
@@ -192,40 +201,87 @@ const Usuarios:React.FC = () => {
                   '& .MuiTextField-root': { m: 1 },
                 }}
               >
-                <TextField
-                  label='Nome'
-                  error={Boolean(formik.touched.first_name && formik.errors.first_name)}
-                  helperText={formik.touched.first_name && formik.errors.first_name}
-                  margin='normal'
-                  name='first_name'
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  type='text'
-                  value={formik.values.first_name}
-                />
-                <TextField
-                  label='Sobrenome'
-                  error={Boolean(formik.touched.last_name && formik.errors.last_name)}
-                  helperText={formik.touched.last_name && formik.errors.last_name}
-                  margin='normal'
-                  name='last_name'
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  type='text'
-                  value={formik.values.last_name}
-                />
-                <TextField
-                  label='E-mail'
-                  error={Boolean(formik.touched.email && formik.errors.email)}
-                  helperText={formik.touched.email && formik.errors.email}
-                  margin='normal'
-                  name='email'
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  type='email'
-                  value={formik.values.email}
-                />
-              </Box>
+                <Grid item md={4}>
+                  <TextField
+                    fullWidth
+                    label='Nome'
+                    error={Boolean(formik.touched.first_name && formik.errors.first_name)}
+                    helperText={formik.touched.first_name && formik.errors.first_name}
+                    margin='normal'
+                    name='first_name'
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    type='text'
+                    value={formik.values.first_name}
+                  />
+                </Grid>
+                <Grid item md={4}>
+                  <TextField
+                    fullWidth
+                    label='Sobrenome'
+                    error={Boolean(formik.touched.last_name && formik.errors.last_name)}
+                    helperText={formik.touched.last_name && formik.errors.last_name}
+                    margin='normal'
+                    name='last_name'
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    type='text'
+                    value={formik.values.last_name}
+                  />
+                </Grid>
+                <Grid item md={4}>
+                  <TextField
+                    fullWidth
+                    label='E-mail'
+                    error={Boolean(formik.touched.email && formik.errors.email)}
+                    helperText={formik.touched.email && formik.errors.email}
+                    margin='normal'
+                    name='email'
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    type='email'
+                    value={formik.values.email}
+                  />
+                </Grid>
+                <Grid item md={4}>
+                  <TextField
+                    fullWidth
+                    label='Senha'
+                    error={Boolean(formik.touched.password && formik.errors.password)}
+                    helperText={formik.touched.password && formik.errors.password}
+                    margin='normal'
+                    name='password'
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    type='password'
+                    value={formik.values.password}
+                  />
+                </Grid>
+                <Grid item md={4}>
+                  <TextField
+                    fullWidth
+                    label='Confirmação de senha'
+                    error={Boolean(formik.touched.passwordConfirmation && formik.errors.passwordConfirmation)}
+                    helperText={formik.touched.passwordConfirmation && formik.errors.passwordConfirmation}
+                    margin='normal'
+                    name='passwordConfirmation'
+                    onBlur={formik.handleBlur}
+                    onChange={formik.handleChange}
+                    type='password'
+                    value={formik.values.passwordConfirmation}
+                  />
+                </Grid>
+                <Grid item md={4} display='flex'>
+                  <FormControlLabel
+                    sx={{ml: 1}}
+                    control={<Checkbox />}
+                    label='Admin'
+                    name='admin'
+                    onChange={formik.handleChange}
+                    value={formik.values.admin}
+                  />
+                </Grid>
+              </Grid>
             </CardContent>
             <CardActions sx={{display: 'flex', justifyContent: 'end'}}>
               <Button color='error' onClick={handleCancelClick}>Cancelar</Button>

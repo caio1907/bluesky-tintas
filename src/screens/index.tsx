@@ -5,12 +5,14 @@ import Estoque from './Estoque';
 import Produtos from './Produtos';
 import Usuarios from './Usuarios';
 import Fornecedores from './Fornecedores';
+import Relatorios from './Relatorios';
 
 export interface ScreenProps {
   path: string
   name: string
   icon: JSX.Element
   component: React.ReactNode
+  onlyAdmin?: boolean
 }
 
 const screens: ScreenProps[] = [
@@ -27,22 +29,29 @@ const screens: ScreenProps[] = [
     icon: <Icon.Storage/>
   },
   {
-    name: 'Cadastro',
+    name: 'Produtos',
     path: '/cadastro',
     component: <Produtos/>,
     icon: <Icon.Window/>
-  },
-  {
-    name: 'Usuários',
-    path: '/users',
-    component: <Usuarios/>,
-    icon: <Icon.People/>
   },
   {
     name: 'Fornecedores',
     path: '/providers',
     component: <Fornecedores/>,
     icon: <Icon.Handshake/>
+  },
+  {
+    name: 'Relatórios',
+    path: '/reports',
+    component: <Relatorios/>,
+    icon: <Icon.Assessment/>
+  },
+  {
+    name: 'Usuários',
+    path: '/users',
+    component: <Usuarios/>,
+    icon: <Icon.People/>,
+    onlyAdmin: true
   }
 ];
 export default screens;

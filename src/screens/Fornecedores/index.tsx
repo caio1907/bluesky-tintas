@@ -141,7 +141,6 @@ const Fornecedores: React.FC = () => {
     const isDelete = window.confirm('Deseja deletar o fornecedor?')
     if (!isDelete) return;
     setLoading(true);
-    console.log(uid);
     deleteDoc(doc(database, 'providers', uid)).then(() => {
       toast.success('Fornecedor removido com sucesso');
     }).finally(() => {

@@ -10,20 +10,29 @@ import { setLoading } from './utils/loadingState';
 import {
   BrowserRouter,
   Routes,
-  Route
+  Route,
+  Navigate
 } from 'react-router-dom';
 import screens from './screens';
 import Layout from './components/Layout';
+import { User } from './types';
+import NotFound from './screens/NotFound';
 
 const App:React.FC = () => {
-
   const [logged, setLogged] = useState(false);
+  const [user, setUser] = useState<User>();
+
   useEffect(() => {
     onAuthStateChanged(auth, result => {
       if(result) {
-        loadCurrentUser()
-        .finally(() => {
+        loadCurrentUser().then(result => {
+          if (!result || result.deleted) {
+            auth.signOut();
+            return;
+          }
+          setUser(result)
           setLogged(true);
+        }).finally(() => {
           setLoading(false)
         });
       } else {
@@ -44,18 +53,23 @@ const App:React.FC = () => {
       {!logged ? (
         <Routes>
           <Route path='/' element={<Login/>}/>
+          <Route path='*' element={<Navigate to='/' replace />}/>
         </Routes>
       ) : (
         <>
           <Layout {...{logOut}}>
             <Routes>
-              {screens.map((screen, index) => (
+              {screens.filter(screen => screen.onlyAdmin ? user?.admin : true).map((screen, index) => (
                 <Route
                   key={index}
                   path={screen.path}
                   element={screen.component}
                 />
               ))}
+              <Route
+                path='*'
+                element={<NotFound/>}
+              />
             </Routes>
           </Layout>
         </>

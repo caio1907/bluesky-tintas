@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import Navbar from './Navbar';
 import Sidebar from './Sidebar';
-import { Box, Container, Grid, Typography } from '@mui/material';
-import * as Icon from '@mui/icons-material';
-import useStyles from './style';
+import { Box, Container } from '@mui/material';
+import Footer from './Footer';
 
 interface Props {
   children: React.ReactNode,
@@ -30,7 +29,6 @@ const Dashboard:React.FC<Props> = ({
 }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const handleChangeSidebarState = () => setIsSidebarOpen(prev => !prev);
-  const classes = useStyles();
   return (
     <>
       <Root>
@@ -39,35 +37,7 @@ const Dashboard:React.FC<Props> = ({
             {children}
           </Box>
         </Container>
-        <div className={classes.footerMain}>
-          <div>
-            <div className={classes.title}>
-              <Icon.Phone/> Contato
-            </div>
-            <Typography>Tel: (081) 98765-4321</Typography>
-            <Typography>E-mail: contato@bluesky.com</Typography>
-          </div>
-          <div>
-            <div className={classes.title}>
-              <Icon.Language/> Redes Sociais
-            </div>
-            <Typography>@BlueSkyTintas</Typography>
-            <Grid container spacing={2}>
-              <Grid item><Icon.Twitter/></Grid>
-              <Grid item><Icon.Instagram/></Grid>
-              <Grid item><Icon.Facebook/></Grid>
-            </Grid>
-          </div>
-          <div>
-            <div>
-              <Typography>Termo e Condições</Typography>
-              <Typography>Política de Privacidade</Typography>
-            </div>
-            <div>
-              <Typography>Copyright <Icon.Copyright fontSize='small'/> 2023 BlueSkyTintas</Typography>
-            </div>
-          </div>
-        </div>
+        <Footer/>
       </Root>
       <Navbar {...{logOut}} sidebarOnOpen={handleChangeSidebarState}/>
       <Sidebar open={isSidebarOpen} onClose={() => setIsSidebarOpen(false)}/>
