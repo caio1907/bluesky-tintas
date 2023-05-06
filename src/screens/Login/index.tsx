@@ -1,5 +1,5 @@
-import React from 'react';
-import { Box, Button, Container, TextField } from '@mui/material';
+import React, { useState } from 'react';
+import { Box, Button, Container, Grid, TextField } from '@mui/material';
 import { setLoading } from '../../utils/loadingState';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { toast } from 'react-toastify';
@@ -9,6 +9,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import useStyles from './styles';
 import * as Icon from '@mui/icons-material';
+import ReCAPTCHA from 'react-google-recaptcha';
 
 interface IData {
   email: string,
@@ -17,6 +18,7 @@ interface IData {
 
 const Login:React.FC = () => {
   const classes = useStyles();
+  const [reCaptcha, setReCaptcha] = useState('');
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -37,6 +39,11 @@ const Login:React.FC = () => {
   });
 
   const signIn = ({email, password}: IData) => {
+    if (!reCaptcha) {
+      toast.error('ReCaptcha inválido');
+      formik.setSubmitting(false);
+      return;
+    }
     setLoading(true);
     toast.dismiss();
     signInWithEmailAndPassword(auth, email, password).then(() => {
@@ -97,18 +104,24 @@ const Login:React.FC = () => {
             value={formik.values.password}
             variant='outlined'
           />
-          <Box sx={{ py: 2, display: 'flex' }}>
-            <div style={{width: '100%'}}/>
-            <Button
-              disabled={formik.isSubmitting}
-              size='large'
-              type='submit'
-              variant='text'
-              endIcon={<Icon.Send/>}
-            >
-              Entrar
-            </Button>
-          </Box>
+          <Grid container spacing={2} mt={1} mb={2}>
+            <Grid item sm={12} display='flex' justifyContent='center'>
+              <ReCAPTCHA
+                sitekey={process.env.REACT_APP_PUBLIC_KEY ?? ''}
+                onChange={token => setReCaptcha(token ?? '')}
+                onExpired={() => setReCaptcha('')}
+              />
+            </Grid>
+            <Grid item sm={12} display='flex' justifyContent='center'>
+              <Button
+                disabled={formik.isSubmitting}
+                size='large'
+                type='submit'
+                variant='contained'
+                endIcon={<Icon.Send/>}
+              >Entrar</Button>
+            </Grid>
+          </Grid>
         </form>
       </Container>
     </Box>

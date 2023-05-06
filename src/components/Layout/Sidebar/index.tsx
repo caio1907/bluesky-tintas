@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Divider, Drawer, useMediaQuery } from '@mui/material';
 import screens from '../../../screens';
 import NavLink from '../NavLink';
 import useStyles from './styles';
+import { loadCurrentUser } from '../../../utils/user';
+import { User } from '../../../types';
 
 interface Props {
   open: boolean,
@@ -10,11 +12,18 @@ interface Props {
 }
 
 export const Sidebar:React.FC<Props> = ({ open, onClose }) => {
+  const [user, setUser] = useState<User>();
   const classes = useStyles();
   const lgUp = useMediaQuery((theme:any) => theme.breakpoints.up('lg'), {
     defaultMatches: true,
     noSsr: false
   });
+  useEffect(() => {
+    loadCurrentUser().then(result => {
+      if (!result) return;
+      setUser(result);
+    });
+  }, []);
 
   const content = (
     <>
@@ -40,7 +49,7 @@ export const Sidebar:React.FC<Props> = ({ open, onClose }) => {
           }}
         />
         <Box sx={{ flexGrow: 1 }}>
-          {screens.map((item, index) => (
+          {screens.filter(screen => screen.onlyAdmin ? user?.admin : true).map((item, index) => (
             <NavLink
               {...item}
               key={index}

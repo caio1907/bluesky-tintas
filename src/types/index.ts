@@ -1,14 +1,10 @@
-export type Lab = {
-  id: number,
-  local: string,
-  size: number
-}
-
-export type Schedule = {
-  lab: number,
-  dateStart: Date,
-  dateEnd: Date,
-  teacher: String
+export type User = {
+  uid: string
+  first_name: string
+  last_name: string
+  email: string
+  deleted?: boolean
+  admin?: boolean
 }
 
 export type Providers = {

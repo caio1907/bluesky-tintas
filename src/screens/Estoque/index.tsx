@@ -63,7 +63,6 @@ const Produtos: React.FC = () => {
         rows={dataGridRows}
         rowSelection={false}
         getCellClassName={params => {
-          console.log(params)
           if (params.row.quantity < params.row.min_quantity) {
             return classes.minQuantityRow
           }
