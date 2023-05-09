@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import * as Icon from '@mui/icons-material';
 import { Accordion, AccordionDetails, AccordionSummary, Button, Card, CardActions, CardContent, CardHeader, TextField } from '@mui/material';
 import { Box } from '@mui/system';
@@ -153,11 +153,11 @@ const Fornecedores: React.FC = () => {
       <GridToolbarContainer>
         <Button
           disabled={formIsVisible}
-          color='info'
           startIcon={<Icon.Add />}
           onClick={handleAddToolbarButton}>
           Adicionar fornecedor
         </Button>
+        <GridToolbarExport/>
       </GridToolbarContainer>
     )
   }

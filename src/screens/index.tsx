@@ -41,7 +41,7 @@ const screens: ScreenProps[] = [
     icon: <Icon.Handshake/>
   },
   {
-    name: 'Relatórios',
+    name: 'Relatório de movimentações',
     path: '/reports',
     component: <Relatorios/>,
     icon: <Icon.Assessment/>

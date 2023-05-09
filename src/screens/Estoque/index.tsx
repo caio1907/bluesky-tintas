@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import useStyles from './styles';
-import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowsProp, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import { database } from '../../services/firebase';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { Providers } from '../../types';
@@ -56,6 +56,14 @@ const Produtos: React.FC = () => {
     return providers.find(provider => provider.uid === fornecedorId.toString())?.name;
   }
 
+  const CustomDataGridToolbar: React.FC = () => {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarExport/>
+      </GridToolbarContainer>
+    )
+  }
+
   return (
     <div>
       <DataGrid
@@ -68,6 +76,7 @@ const Produtos: React.FC = () => {
           }
           return '';
         }}
+        slots={{ toolbar: CustomDataGridToolbar }}
       />
     </div>
   );

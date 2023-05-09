@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Item, Providers, User } from '../../types';
 import { Timestamp, collection, onSnapshot } from 'firebase/firestore';
 import { database } from '../../services/firebase';
-import { DataGrid, GridColDef, GridRowsProp } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridRowsProp, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import { format } from 'date-fns';
 
 const Relatorios:React.FC = () => {
@@ -104,12 +104,21 @@ const Relatorios:React.FC = () => {
     return `${user?.first_name} ${user?.last_name}`;
   }
 
+  const CustomDataGridToolBar: React.FC = () => {
+    return (
+      <GridToolbarContainer>
+        <GridToolbarExport/>
+      </GridToolbarContainer>
+    )
+  }
+
   return (
     <>
       <DataGrid
         columns={dataGridColumns}
         rows={dataGridRows}
         rowSelection={false}
+        slots={{toolbar: CustomDataGridToolBar}}
       />
     </>
   )

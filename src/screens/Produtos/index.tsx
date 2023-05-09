@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Button, Accordion, AccordionSummary, AccordionDetails, Card, CardHeader, CardContent, CardActions, MenuItem } from '@mui/material';
 import * as Icon from '@mui/icons-material';
-import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import { addDoc, collection, deleteDoc, doc, onSnapshot, setDoc } from 'firebase/firestore';
 import { setLoading } from '../../utils/loadingState';
 import { toast } from 'react-toastify';
@@ -192,11 +192,11 @@ const Produtos: React.FC = () => {
       <GridToolbarContainer>
         <Button
           disabled={formIsVisible}
-          color='info'
           startIcon={<Icon.Add />}
           onClick={handleAddToolbarButton}>
           Adicionar item
         </Button>
+        <GridToolbarExport/>
       </GridToolbarContainer>
     )
   }
