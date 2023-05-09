@@ -20,7 +20,7 @@ import { toast } from 'react-toastify';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { translateMessageErrorToPTBR } from '../../utils/messageErrorsFirebase';
 import { auth, database } from '../../services/firebase';
-import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer } from '@mui/x-data-grid';
+import { DataGrid, GridActionsCellItem, GridColDef, GridRowsProp, GridToolbarContainer, GridToolbarExport } from '@mui/x-data-grid';
 import * as Icon from '@mui/icons-material';
 import { AccordionDetails } from '@material-ui/core';
 import useStyle from './style';
@@ -31,6 +31,7 @@ interface SubmitData {
   last_name: string
   email: string
   password: string
+  admin: boolean
 }
 
 const Usuarios:React.FC = () => {
@@ -68,6 +69,13 @@ const Usuarios:React.FC = () => {
     {field: 'last_name', headerName: 'Sobrenome', flex: 1},
     {field: 'email', headerName: 'E-mail', flex: 1},
     {
+      field: 'admin',
+      headerName: 'Admin',
+      maxWidth: 70,
+      align: 'center',
+      valueFormatter: ({value}) => value === true ? 'Sim' : '',
+    },
+    {
       field: 'actions',
       headerName: 'Ações',
       type: 'actions',
@@ -97,7 +105,8 @@ const Usuarios:React.FC = () => {
         uid: doc.id,
         first_name: doc.get('first_name'),
         last_name: doc.get('last_name'),
-        email: doc.get('email')
+        email: doc.get('email'),
+        admin: doc.get('admin')
       })))
     })
 
@@ -124,14 +133,15 @@ const Usuarios:React.FC = () => {
 
   const handleAddToolbarButton = () => setFormIsVisible(true)
 
-  const submit = ({uid, first_name, last_name, email, password}: SubmitData) => {
+  const submit = ({uid, first_name, last_name, email, password, admin}: SubmitData) => {
     setLoading(true);
     toast.dismiss();
     if (uid) {
       setDoc(doc(database, 'users', uid), {
         email,
         first_name,
-        last_name
+        last_name,
+        admin
       }).then(() => {
         toast.success('Usuário alterado com sucesso');
       }).catch(error => {
@@ -167,11 +177,11 @@ const Usuarios:React.FC = () => {
       <GridToolbarContainer>
         <Button
           disabled={formIsVisible}
-          color='info'
           startIcon={<Icon.Add />}
           onClick={handleAddToolbarButton}>
           Adicionar usuário
         </Button>
+        <GridToolbarExport/>
       </GridToolbarContainer>
     )
   }
